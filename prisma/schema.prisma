@@ -1,0 +1,204 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MERCHANT
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String?
+  name          String?
+  role          UserRole  @default(MERCHANT)
+  emailVerified DateTime?
+  image         String?
+  
+  // Stripe
+  stripeCustomerId String?
+  
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  store         Store?
+  orders        Order[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Store {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  logo        String?
+  banner      String?
+  
+  // Custom domain
+  domain      String?  @unique
+  
+  // Stripe Connect
+  stripeAccountId    String?
+  stripeOnboarded    Boolean @default(false)
+  commissionRate     Float   @default(10.0) // Platform commission %
+  
+  // Settings
+  isActive    Boolean  @default(false)
+  theme       Json?    // Custom theme settings
+  
+  // Relations
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  products    Product[]
+  orders      Order[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String?
+  products    Product[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String
+  description String   @db.Text
+  images      String[]
+  price       Int      // in cents
+  compareAt   Int?     // Original price for discounts
+  
+  // Inventory
+  sku         String?
+  stock       Int      @default(0)
+  trackStock  Boolean  @default(true)
+  
+  // Status
+  isActive    Boolean  @default(true)
+  featured    Boolean  @default(false)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  // Relations
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id])
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([storeId, slug])
+  @@index([storeId, isActive])
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  
+  // Customer info
+  userId      String?
+  user        User?       @relation(fields: [userId], references: [id])
+  email       String
+  name        String
+  phone       String?
+  
+  // Shipping
+  shippingAddress Json
+  
+  // Payment
+  stripeSessionId     String?
+  stripePaymentIntent String?
+  paymentStatus       String
+  
+  // Amounts (in cents)
+  subtotal    Int
+  shipping    Int
+  tax         Int
+  total       Int
+  
+  // Platform fee
+  platformFee Int
+  
+  // Status
+  status      OrderStatus @default(PENDING)
+  
+  // Relations
+  storeId     String
+  store       Store       @relation(fields: [storeId], references: [id])
+  items       OrderItem[]
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([storeId, status])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  
+  quantity  Int
+  price     Int     // Price at time of purchase
+  
+  createdAt DateTime @default(now())
+}
