@@ -2,7 +2,10 @@ import { notFound } from "next/navigation"
 import { prisma } from "@/lib/db"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import Image from "next/image"
 import { formatPrice } from "@/lib/utils"
+import { StoreHeader } from "@/components/store-header"
+import { AddToCartButton } from "@/components/add-to-cart-button"
 import type { Product } from "@prisma/client"
 
 interface StorePageProps {
@@ -55,14 +58,11 @@ export default async function StorePage({ params }: StorePageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold">{store.name}</h1>
-          {store.description && (
-            <p className="text-muted-foreground mt-2">{store.description}</p>
-          )}
-        </div>
-      </header>
+      <StoreHeader 
+        storeName={store.name} 
+        storeSlug={store.slug}
+        description={store.description || undefined}
+      />
 
       <main className="container mx-auto px-4 py-8">
         {store.products.length === 0 ? (
@@ -77,8 +77,19 @@ export default async function StorePage({ params }: StorePageProps) {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {store.products.map((product: Product) => (
-              <Link key={product.id} href={`/${domain}/${product.slug}`}>
-                <Card className="h-full hover:shadow-lg transition-shadow">
+              <Card key={product.id} className="h-full overflow-hidden group">
+                <Link href={`/${domain}/${product.slug}`}>
+                  {product.images.length > 0 && (
+                    <div className="aspect-square relative bg-gray-100 overflow-hidden">
+                      <Image
+                        src={product.images[0]}
+                        alt={product.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    </div>
+                  )}
                   <CardHeader>
                     <CardTitle className="line-clamp-2">{product.title}</CardTitle>
                     <CardDescription className="text-lg font-semibold">
@@ -86,17 +97,20 @@ export default async function StorePage({ params }: StorePageProps) {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground line-clamp-3">
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
                       {product.description}
                     </p>
-                    {product.stock > 0 ? (
-                      <p className="text-sm text-green-600 mt-2">In stock</p>
-                    ) : (
-                      <p className="text-sm text-red-600 mt-2">Out of stock</p>
-                    )}
                   </CardContent>
-                </Card>
-              </Link>
+                </Link>
+                <CardContent className="pt-0">
+                  <AddToCartButton
+                    product={product}
+                    storeId={store.id}
+                    disabled={!store.stripeOnboarded}
+                    className="w-full"
+                  />
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}

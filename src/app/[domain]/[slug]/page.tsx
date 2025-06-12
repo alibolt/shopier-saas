@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { formatPrice } from "@/lib/utils"
 import Link from "next/link"
 import Image from "next/image"
+import { AddToCartButton } from "@/components/add-to-cart-button"
+import { StoreHeader } from "@/components/store-header"
 
 interface ProductPageProps {
   params: Promise<{
@@ -43,13 +45,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <Link href={`/${domain}`} className="text-sm text-muted-foreground hover:text-primary">
-            ← Back to {store.name}
-          </Link>
-        </div>
-      </header>
+      <StoreHeader 
+        storeName={store.name} 
+        storeSlug={store.slug}
+        description={store.description || undefined}
+      />
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
@@ -129,22 +129,26 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
               )}
 
-              <form action={`/api/checkout`} method="POST">
-                <input type="hidden" name="productId" value={product.id} />
-                <input type="hidden" name="storeId" value={store.id} />
-                <Button 
-                  type="submit" 
-                  size="lg" 
-                  className="w-full md:w-auto"
-                  disabled={product.stock === 0 || !store.stripeOnboarded}
-                >
-                  {!store.stripeOnboarded 
-                    ? "Store setup in progress" 
-                    : product.stock === 0 
-                    ? "Out of Stock" 
-                    : "Buy Now"}
-                </Button>
-              </form>
+              <div className="flex gap-4">
+                <AddToCartButton
+                  product={product}
+                  storeId={store.id}
+                  disabled={!store.stripeOnboarded}
+                  size="lg"
+                />
+                <form action={`/api/checkout`} method="POST">
+                  <input type="hidden" name="productId" value={product.id} />
+                  <input type="hidden" name="storeId" value={store.id} />
+                  <Button 
+                    type="submit" 
+                    size="lg" 
+                    variant="outline"
+                    disabled={product.stock === 0 || !store.stripeOnboarded}
+                  >
+                    Buy Now
+                  </Button>
+                </form>
+              </div>
               </CardContent>
             </Card>
           </div>
