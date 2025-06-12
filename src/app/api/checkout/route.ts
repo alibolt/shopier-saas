@@ -5,6 +5,14 @@ import { generateOrderNumber } from "@/lib/utils"
 
 export async function POST(req: Request) {
   try {
+    // Check if Stripe is configured
+    if (!stripe) {
+      return NextResponse.json(
+        { error: "Payment system is not configured" },
+        { status: 503 }
+      )
+    }
+
     const formData = await req.formData()
     const productId = formData.get("productId") as string
     const storeId = formData.get("storeId") as string

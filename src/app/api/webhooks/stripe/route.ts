@@ -4,6 +4,14 @@ import { stripe } from "@/lib/stripe"
 import { prisma } from "@/lib/db"
 
 export async function POST(req: Request) {
+  // Check if Stripe is configured
+  if (!stripe) {
+    return NextResponse.json(
+      { error: "Stripe is not configured" },
+      { status: 503 }
+    )
+  }
+
   const body = await req.text()
   const headersList = await headers()
   const signature = headersList.get("Stripe-Signature") as string
@@ -14,7 +22,7 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET || ''
     )
   } catch {
     return NextResponse.json(
