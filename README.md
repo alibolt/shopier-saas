@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shopier SaaS - Multi-tenant E-commerce Platform
+
+A modern multi-tenant e-commerce SaaS platform built with Next.js 15, Stripe Connect, and Prisma. Create your own online store in minutes with custom domain support.
+
+## Features
+
+- 🏪 **Multi-tenant Architecture** - Each merchant gets their own store
+- 💳 **Stripe Connect Integration** - Accept payments with platform fees
+- 🌐 **Custom Domain Support** - Use your own domain or subdomain
+- 🛍️ **Product Management** - Full CRUD operations for products
+- 🔐 **Authentication** - Secure login with NextAuth.js
+- 📱 **Responsive Design** - Works on all devices
+- ⚡ **Fast Performance** - Built with Next.js 15 and Turbopack
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: NextAuth.js v5
+- **Payments**: Stripe Connect Express
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Deployment**: Vercel
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+
+- PostgreSQL database
+- Stripe account with Connect enabled
+- Vercel account (for deployment)
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/shopier-saas.git
+cd shopier-saas
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edit `.env` with your actual values:
+- Database URL
+- NextAuth secret
+- Stripe API keys
+- Other required variables
 
-## Learn More
+4. Set up the database:
+```bash
+npx prisma migrate dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+5. Run the development server:
+```bash
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+src/
+├── app/
+│   ├── (auth)/          # Auth pages (login/register)
+│   ├── (dashboard)/     # Merchant dashboard
+│   ├── [domain]/        # Dynamic storefront routing
+│   ├── api/             # API routes
+│   └── page.tsx         # Homepage
+├── components/          # Reusable components
+├── lib/                 # Utilities and configurations
+├── middleware.ts        # Custom domain routing
+└── types/              # TypeScript types
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Key Features Implementation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Custom Domain Routing
+The middleware handles subdomain and custom domain routing, directing traffic to the appropriate store.
+
+### Stripe Connect
+Merchants can onboard with Stripe Connect Express to accept payments. Platform fees are automatically collected.
+
+### Multi-tenant Data Isolation
+Each store's data is isolated using Prisma relations and proper access control.
+
+## Deployment
+
+### Deploy to Vercel
+
+1. Push your code to GitHub
+2. Connect your GitHub repo to Vercel
+3. Set environment variables in Vercel dashboard
+4. Deploy!
+
+### Configure Custom Domains
+
+1. Add domain to Vercel project settings
+2. Configure DNS records
+3. Update store domain in database
+
+## Environment Variables
+
+Required environment variables:
+
+```env
+# Database
+DATABASE_URL="postgresql://..."
+
+# NextAuth
+NEXTAUTH_URL="https://yourdomain.com"
+NEXTAUTH_SECRET="your-secret"
+
+# Stripe
+STRIPE_PUBLIC_KEY="pk_..."
+STRIPE_SECRET_KEY="sk_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+STRIPE_CONNECT_CLIENT_ID="ca_..."
+
+# Other
+NEXT_PUBLIC_ROOT_DOMAIN="yourdomain.com"
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+MIT License

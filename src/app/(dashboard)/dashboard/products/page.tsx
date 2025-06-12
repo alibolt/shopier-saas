@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { formatPrice } from "@/lib/utils"
+import type { Product } from "@prisma/client"
 
 export default async function ProductsPage() {
   const session = await auth()
@@ -56,7 +57,7 @@ export default async function ProductsPage() {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {store.products.map((product) => (
+          {store.products.map((product: Product) => (
             <Card key={product.id}>
               <CardHeader>
                 <CardTitle className="line-clamp-1">{product.title}</CardTitle>

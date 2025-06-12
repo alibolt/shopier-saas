@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     )
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Invalid signature" },
       { status: 400 }

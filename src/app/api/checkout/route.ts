@@ -78,7 +78,7 @@ export async function POST(req: Request) {
     })
 
     // Create order in database
-    const order = await prisma.order.create({
+    await prisma.order.create({
       data: {
         orderNumber: generateOrderNumber(),
         storeId: product.store.id,

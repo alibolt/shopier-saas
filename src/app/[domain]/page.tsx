@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { formatPrice } from "@/lib/utils"
+import type { Product } from "@prisma/client"
 
 interface StorePageProps {
   params: Promise<{
@@ -57,7 +58,7 @@ export default async function StorePage({ params }: StorePageProps) {
           </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {store.products.map((product) => (
+            {store.products.map((product: Product) => (
               <Link key={product.id} href={`/${domain}/${product.slug}`}>
                 <Card className="h-full hover:shadow-lg transition-shadow">
                   <CardHeader>
