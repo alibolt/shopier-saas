@@ -12,6 +12,27 @@ import { toast } from "sonner"
 export default function RegisterPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const isDemoMode = !process.env.NEXT_PUBLIC_DATABASE_URL
+  
+  if (isDemoMode) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Demo Mode</CardTitle>
+            <CardDescription>
+              Registration is disabled in demo mode. Please configure environment variables to enable registration.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Link href="/" className="w-full">
+              <Button variant="outline" className="w-full">Back to Home</Button>
+            </Link>
+          </CardFooter>
+        </Card>
+      </div>
+    )
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()

@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { signIn } from "next-auth/react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +12,27 @@ import { toast } from "sonner"
 export default function LoginPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const isDemoMode = !process.env.NEXT_PUBLIC_DATABASE_URL
+  
+  if (isDemoMode) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Demo Mode</CardTitle>
+            <CardDescription>
+              Authentication is disabled in demo mode. Please configure environment variables to enable login.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Link href="/" className="w-full">
+              <Button variant="outline" className="w-full">Back to Home</Button>
+            </Link>
+          </CardFooter>
+        </Card>
+      </div>
+    )
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -23,6 +43,7 @@ export default function LoginPage() {
     const password = formData.get("password") as string
 
     try {
+      const { signIn } = await import("next-auth/react")
       const result = await signIn("credentials", {
         email,
         password,
