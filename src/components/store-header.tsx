@@ -2,6 +2,9 @@
 
 import { Cart } from '@/components/cart'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { User } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 
 interface StoreHeaderProps {
   storeName: string
@@ -10,6 +13,8 @@ interface StoreHeaderProps {
 }
 
 export function StoreHeader({ storeName, storeSlug, description }: StoreHeaderProps) {
+  const { data: session } = useSession()
+  
   return (
     <header className="border-b sticky top-0 bg-background z-40">
       <div className="container mx-auto px-4 py-4">
@@ -20,7 +25,22 @@ export function StoreHeader({ storeName, storeSlug, description }: StoreHeaderPr
               <p className="text-sm text-muted-foreground">{description}</p>
             )}
           </Link>
-          <Cart />
+          <div className="flex items-center gap-4">
+            {session?.user ? (
+              <Link href={`/${storeSlug}/account`}>
+                <Button variant="ghost" size="icon">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
+            ) : (
+              <Link href={`/${storeSlug}/account/login`}>
+                <Button variant="ghost" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+            )}
+            <Cart />
+          </div>
         </div>
       </div>
     </header>
