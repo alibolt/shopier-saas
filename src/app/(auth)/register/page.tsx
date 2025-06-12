@@ -37,8 +37,21 @@ export default function RegisterPage() {
         throw new Error(result.error || "Registration failed")
       }
 
-      toast.success("Account created successfully!")
-      router.push("/login")
+      toast.success(result.message || "Account created successfully!")
+      
+      // Show verification message
+      const cardHeader = document.querySelector('h2')
+      if (cardHeader) {
+        cardHeader.textContent = "Check your email"
+      }
+      const cardDesc = document.querySelector('p.text-sm')
+      if (cardDesc) {
+        cardDesc.textContent = "We've sent you a verification link. Please check your email to verify your account."
+      }
+      
+      // Hide form
+      const form = e.currentTarget
+      form.style.display = 'none'
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Something went wrong")
     } finally {

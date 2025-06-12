@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
 import { prisma } from "@/lib/db"
+import { sendVerificationEmail } from "@/lib/email"
+import { randomBytes } from "crypto"
 
 const registerSchema = z.object({
   name: z.string().min(1),
@@ -37,6 +39,21 @@ export async function POST(req: Request) {
         password: hashedPassword,
       },
     })
+    
+    // Generate verification token
+    const token = randomBytes(32).toString('hex')
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+    
+    await prisma.verificationToken.create({
+      data: {
+        identifier: user.email,
+        token,
+        expires,
+      },
+    })
+    
+    // Send verification email
+    await sendVerificationEmail(user.email, token)
 
     return NextResponse.json({
       user: {
@@ -44,6 +61,7 @@ export async function POST(req: Request) {
         name: user.name,
         email: user.email,
       },
+      message: "Please check your email to verify your account",
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
