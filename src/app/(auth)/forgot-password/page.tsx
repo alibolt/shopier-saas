@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -9,9 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
-export default function LoginPage() {
-  const router = useRouter()
+export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false)
+  const [sent, setSent] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -19,23 +18,22 @@ export default function LoginPage() {
 
     const formData = new FormData(e.currentTarget)
     const email = formData.get("email") as string
-    const password = formData.get("password") as string
 
     try {
-      const { signIn } = await import("next-auth/react")
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       })
 
-      if (result?.error) {
-        throw new Error("Invalid email or password")
+      const result = await res.json()
+
+      if (!res.ok) {
+        throw new Error(result.error || "Failed to send reset email")
       }
 
-      toast.success("Logged in successfully!")
-      router.push("/dashboard")
-      router.refresh()
+      setSent(true)
+      toast.success("Reset link sent! Check your email.")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Something went wrong")
     } finally {
@@ -43,13 +41,33 @@ export default function LoginPage() {
     }
   }
 
+  if (sent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Check your email</CardTitle>
+            <CardDescription>
+              We've sent you a password reset link. Please check your email.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Link href="/login" className="w-full">
+              <Button variant="outline" className="w-full">Back to login</Button>
+            </Link>
+          </CardFooter>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Welcome back</CardTitle>
+          <CardTitle>Forgot password?</CardTitle>
           <CardDescription>
-            Enter your credentials to access your account
+            Enter your email address and we'll send you a reset link
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -65,30 +83,15 @@ export default function LoginPage() {
                 disabled={loading}
               />
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                  Forgot password?
-                </Link>
-              </div>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                required
-                disabled={loading}
-              />
-            </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? "Sending..." : "Send reset link"}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-primary hover:underline">
-                Create account
+              Remember your password?{" "}
+              <Link href="/login" className="text-primary hover:underline">
+                Sign in
               </Link>
             </p>
           </CardFooter>
