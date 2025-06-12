@@ -25,6 +25,9 @@ async function DashboardNav() {
               <Link href="/dashboard/orders" className="text-sm hover:text-primary">
                 Orders
               </Link>
+              <Link href="/dashboard/analytics" className="text-sm hover:text-primary">
+                Analytics
+              </Link>
               <Link href="/dashboard/settings" className="text-sm hover:text-primary">
                 Settings
               </Link>
