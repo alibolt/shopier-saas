@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import Image from "next/image"
 import { formatPrice } from "@/lib/utils"
 import type { Product } from "@prisma/client"
 
@@ -58,7 +59,18 @@ export default async function ProductsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {store.products.map((product: Product) => (
-            <Card key={product.id}>
+            <Card key={product.id} className="overflow-hidden">
+              {product.images.length > 0 && (
+                <div className="aspect-square relative bg-gray-100">
+                  <Image
+                    src={product.images[0]}
+                    alt={product.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                </div>
+              )}
               <CardHeader>
                 <CardTitle className="line-clamp-1">{product.title}</CardTitle>
                 <CardDescription>

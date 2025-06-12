@@ -8,11 +8,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { slugify } from "@/lib/utils"
+import { ImageUpload } from "@/components/image-upload"
 
 export default function NewProductPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [slug, setSlug] = useState("")
+  const [images, setImages] = useState<string[]>([])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -26,6 +28,7 @@ export default function NewProductPage() {
       price: Math.round(parseFloat(formData.get("price") as string) * 100), // Convert to cents
       stock: parseInt(formData.get("stock") as string),
       sku: formData.get("sku") as string,
+      images: images,
     }
 
     try {
@@ -62,6 +65,19 @@ export default function NewProductPage() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Product Images</Label>
+              <ImageUpload
+                value={images}
+                onChange={setImages}
+                maxFiles={5}
+                disabled={loading}
+              />
+              <p className="text-xs text-muted-foreground">
+                Upload up to 5 images. The first image will be the main product image.
+              </p>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="title">Product Title</Label>
               <Input

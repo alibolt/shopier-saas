@@ -10,6 +10,7 @@ const createProductSchema = z.object({
   price: z.number().int().positive(),
   stock: z.number().int().min(0),
   sku: z.string().optional(),
+  images: z.array(z.string().url()).default([]),
 })
 
 export async function POST(req: Request) {
@@ -60,7 +61,6 @@ export async function POST(req: Request) {
       data: {
         ...validatedData,
         storeId: store.id,
-        images: [], // Will implement image upload later
       },
     })
 
