@@ -14,6 +14,24 @@ interface StorePageProps {
 export default async function StorePage({ params }: StorePageProps) {
   const { domain } = await params
   
+  // Demo mode check
+  if (!process.env.DATABASE_URL) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-16">
+          <Card>
+            <CardHeader>
+              <CardTitle>Demo Mode</CardTitle>
+              <CardDescription>
+                Store viewing is disabled in demo mode. Configure database to enable this feature.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+  
   // Find store by slug or custom domain
   const store = await prisma.store.findFirst({
     where: {

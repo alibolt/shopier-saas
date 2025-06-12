@@ -5,9 +5,11 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   const url = request.nextUrl.clone()
   
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'shopier-saas.vercel.app'
+  
   // Get the subdomain (e.g., 'store' from 'store.domain.com')
   const currentHost = hostname
-    .replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, '')
+    .replace(`.${rootDomain}`, '')
     .replace(`www.`, '')
     .replace(`http://`, '')
     .replace(`https://`, '')
@@ -15,7 +17,7 @@ export async function middleware(request: NextRequest) {
   
   // If accessing main domain or localhost
   if (
-    currentHost === process.env.NEXT_PUBLIC_ROOT_DOMAIN?.split(':')[0] ||
+    currentHost === rootDomain.split(':')[0] ||
     currentHost === 'localhost' ||
     currentHost === '127.0.0.1' ||
     // Allow dashboard, api, auth routes on main domain
